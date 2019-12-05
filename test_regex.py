@@ -2,12 +2,10 @@
 
 import re
 
-pattern = re.compile(r"^(\w+[(大道)路])(\d+)号")
+pattern = re.compile(r"[村浜](\d+组)(\d+号)$")
 
-m = pattern.match('港城大道108号xx')
+m = pattern.search('长瑞村戴浜5组11号')
 if m:
 	print(m.group(1),m.group(2))
-
-m = pattern.match('港城大路108号xx')
-if m:
-	print(m.group(1),m.group(2))
+else:
+	print("not match")

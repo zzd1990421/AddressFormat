@@ -4,7 +4,7 @@
 
 from .structures import AddrMap, Pca
 from .structures import P,C,A
-from .regex_format import GetRoadNumByRegex
+from .regex_format import *
 import jieba
 import json
 
@@ -174,11 +174,18 @@ def parseAddr(addr, umap=myumap, index=[], cut=False, lookahead=8, pos_sensitive
             result["地址"] = new_addr
 
     # 根据正则获取道路和道路号码
-    road,num = GetRoadNumByRegex(result["地址"])
-    if road!="" and num!="":
+    road,road_num = GetRoadNumByRegex(result["地址"])
+    if road!="" and road_num!="":
         result["道路"] = road
-        result["道路号"] = num
-        result["地址"] = result["地址"][len(road)+len(num):]
+        result["道路号"] = road_num
+        result["地址"] = result["地址"][len(road)+len(road_num):]
+
+    # 根据正则获取组和组号
+    zu,zu_num = GetZuAndNum(result["地址"])
+    if zu!="" and zu_num!="":
+        result["组"] = zu
+        result["组号"] = zu_num
+        result["地址"] = result["地址"][:len(result["地址"])-len(zu)-len(zu_num)]
         
 
     return result
@@ -219,6 +226,8 @@ def _handle_one_record(addr, umap, cut, lookahead, pos_sensitive, open_warning):
     result["道路"] = ""
     result["道路号"] = ""
     result["地址"] = addr
+    result["组"] = ""
+    result["组号"] = ""
     
     # 去除剩余地址中以省市区开头的部分
     for x in range(1,10):
