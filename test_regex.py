@@ -1,11 +1,10 @@
 # -*- coding: UTF-8 -*-
 
 import re
+from cpca import *
 
-pattern = re.compile(r"[村浜](\d+组)(\d+号)$")
+pattern = re.compile(r"[村浜区片][第]*(\w+组)(\d+号)$")
 
-m = pattern.search('长瑞村戴浜5组11号')
-if m:
-	print(m.group(1),m.group(2))
-else:
-	print("not match")
+zu,zu_num = GetZuAndNum("刘村村泾西第九组65号")
+print(zu)
+print(zu_num)
