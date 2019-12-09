@@ -1,5 +1,6 @@
 # coding:utf-8
 import json
+import cpca
 
 from flask import Flask, request
 
@@ -20,13 +21,13 @@ def get_task():
     # print(param)  # request.args请求参数
     # print(type(param))
     # print(param)
-    keystr = param['address']
+    addr = param['address']
 
     # return str(text_process.handle_client("工单主题:核心系统数据库服务器上架;", 3))
     # in_json = json.dumps(text_process.handle_client("工单主题:核心系统数据库服务器上架;", 3))
     # return str(in_json)
     # print(text_process.handle_client("工单主题:核心系统数据库服务器上架;", 3))
-    return "get_task"
+    return cpca.parseAddr(addr)
 
 
 # post

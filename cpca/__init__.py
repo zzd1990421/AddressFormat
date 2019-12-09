@@ -15,6 +15,9 @@ VERSION = (0, 4, 4)
 
 __version__ = ".".join([str(x) for x in VERSION])
 
+# 从乡镇反推省市区的map
+xz_map = {}
+
 
 def _data_from_csv() -> (AddrMap, AddrMap, AddrMap, dict, dict):
     # 区名及其简写 -> 相关pca元组
@@ -46,6 +49,19 @@ def _data_from_csv() -> (AddrMap, AddrMap, AddrMap, dict, dict):
 
     return area_map, city_map, province_area_map, province_map, latlng
 
+def _xz_map_from_csv_() ->(dict):
+    xm = {}
+
+    from pkg_resources import resource_stream
+    with resource_stream('cpca.resources', 'sz.csv') as pca_stream:
+        from io import TextIOWrapper
+        import csv
+        text = TextIOWrapper(pca_stream, encoding='utf8')
+        pca_csv = csv.DictReader(text)
+        for record_dict in pca_csv:
+            xm[record_dict['xz']] = {'sheng':record_dict['sheng'], 'shi':record_dict['shi'], 'qu':record_dict['qu']}
+
+    return xm
 
 def _fill_province_area_map(province_area_map: AddrMap, record_dict):
     pca_tuple = (record_dict['sheng'], record_dict['shi'], record_dict['qu'])
@@ -103,6 +119,12 @@ def _fill_province_map(province_map, record_dict):
 
 
 area_map, city_map, province_area_map, province_map, latlng = _data_from_csv()
+xz_map = _xz_map_from_csv_()
+
+def getSSQFromXZ(xzStr):
+    if xzStr in xz_map:
+        return xz_map[xzStr]['sheng'],xz_map[xzStr]['shi'],xz_map[xzStr]['qu']
+    return "","",""
 
 # 直辖市
 munis = {'北京市', '天津市', '上海市', '重庆市'}
@@ -187,6 +209,16 @@ def parseAddr(addr, umap=myumap, index=[], cut=False, lookahead=8, pos_sensitive
         result["组号"] = zu_num
         result["地址"] = result["地址"][:len(result["地址"])-len(zu)-len(zu_num)]
         
+    # 乡镇反推省市区
+    if result["乡镇"]!="":
+        sheng,shi,qu = getSSQFromXZ(result["乡镇"])
+        if sheng!="" and shi!="" and qu!="":
+            result["省"] = sheng
+            result["市"] = shi
+            result["区"] = qu
+
+    # 本项目用于江苏
+    result["省"] = "江苏省"
 
     return result
 
