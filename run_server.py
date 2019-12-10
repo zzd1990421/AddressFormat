@@ -1,52 +1,38 @@
 # coding:utf-8
 import json
 import cpca
+import synonyms
 
 from flask import Flask, request
 
 app = Flask(__name__)
 
-MY_URL = '/address_format/'
-
-# hello = '今天天气真好呀'
-# not_hello = '为什么今天天气不好呀'
-# keystr="服务器上架"
-# topN=3
+MY_URL = '/address/'
 
 
 # get
-@app.route(MY_URL + 'get/tasks', methods=['GET'])
-def get_task():
+@app.route(MY_URL + 'format', methods=['GET'])
+def format_address():
     param = request.args.to_dict()
-    # print(param)  # request.args请求参数
-    # print(type(param))
-    # print(param)
     addr = param['address']
 
-    # return str(text_process.handle_client("工单主题:核心系统数据库服务器上架;", 3))
-    # in_json = json.dumps(text_process.handle_client("工单主题:核心系统数据库服务器上架;", 3))
-    # return str(in_json)
-    # print(text_process.handle_client("工单主题:核心系统数据库服务器上架;", 3))
-    return cpca.parseAddr(addr)
-
+    if addr is not None:
+        return cpca.parseAddr(addr)
+    else:
+        return {"err_msg":"address param empty"}
 
 # post
-@app.route(MY_URL + 'post/tasks', methods=['POST'])
-def post_task():
-    param = request.json
-    # print(param)  # request.args请求参数
-    # print(type(param))
-    # print(param)
-    keystr = param['keystr']
-    topN = param['topN']
+@app.route(MY_URL + 'similarity', methods=['POST'])
+def get_similarity():
+    param = request.form
+    v1 = param['addr1']
+    v2 = param['addr2']
 
-    # return str(text_proprint(text_process.handle_client("工单主题:核心系统数据库服务器上架;", 3))cess.handle_client("工单主题:核心系统数据库服务器上架;", 3))
-    #
-    # in_json = json.dumps(text_process.handle_client(keystr, topN))
-    # return str(in_json)
-    return "post_task"
+    if v1!="" and v2!="":
+        return {"similarity":synonyms.compare(v1, v2)}
+    else:
+        return {"err_msg":"address param empty"}
 
 if __name__ == '__main__':
     # app.run(debug=True, host='0.0.0.0', port=8000)
-    app.run(debug=True)
-# http://127.0.0.1:5000/knowledge/api/v1/get/tasks?keystr="服务器上架"&topN=3
+    app.run(debug=False)
