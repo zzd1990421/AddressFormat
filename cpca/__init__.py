@@ -18,7 +18,6 @@ __version__ = ".".join([str(x) for x in VERSION])
 # 从乡镇反推省市区的map
 xz_map = {}
 
-
 def _data_from_csv() -> (AddrMap, AddrMap, AddrMap, dict, dict):
     # 区名及其简写 -> 相关pca元组
     area_map = AddrMap()
@@ -192,22 +191,32 @@ def parseAddr(addr, umap=myumap, index=[], cut=False, lookahead=8, pos_sensitive
     if dz is not None and dz!="":
         xz,new_addr = parseXZ(dz)
         if xz!="":
+            # 分词匹配乡镇信息
             result["乡镇"] = xz
             result["地址"] = new_addr
+        else:
+            # 乡镇库匹配 不修改地址信息 仅做参考乡镇
+            if dz[:2]+"镇" in xz_map:
+                result["乡镇"] = dz[:2]+"镇"
+                # result["地址"] = result["地址"][2:]
+            elif dz[:3]+"镇" in xz_map:
+                result["乡镇"] = dz[:3]+"镇"
+                # result["地址"] = result["地址"][3:]
+
 
     # 根据正则获取道路和道路号码
     road,road_num = GetRoadNumByRegex(result["地址"])
     if road!="" and road_num!="":
-        result["道路"] = road
-        result["道路号"] = road_num
-        result["地址"] = result["地址"][len(road)+len(road_num):]
+        # result["道路"] = road
+        # result["道路号"] = road_num
+        result["地址"] = road + road_num + result["地址"][len(road)+len(road_num):]
 
     # 根据正则获取组和组号
     zu,zu_num = GetZuAndNum(result["地址"])
     if zu!="" and zu_num!="":
-        result["组"] = zu
-        result["组号"] = zu_num
-        result["地址"] = result["地址"][:len(result["地址"])-len(zu)-len(zu_num)]
+        # result["组"] = zu
+        # result["组号"] = zu_num
+        result["地址"] = result["地址"][:len(result["地址"])-len(zu)-len(zu_num)]+zu+zu_num
         
     # 乡镇反推省市区
     if result["乡镇"]!="":
@@ -217,8 +226,9 @@ def parseAddr(addr, umap=myumap, index=[], cut=False, lookahead=8, pos_sensitive
             result["市"] = shi
             result["区"] = qu
 
-    # 本项目用于江苏
+    # 本项目用于江苏苏州
     result["省"] = "江苏省"
+    result["市"] = "苏州市"
 
     return result
 
@@ -255,11 +265,11 @@ def _handle_one_record(addr, umap, cut, lookahead, pos_sensitive, open_warning):
 
     result = pca.propertys_dict(pos_sensitive)
     result["乡镇"] = ""
-    result["道路"] = ""
-    result["道路号"] = ""
+    # result["道路"] = ""
+    # result["道路号"] = ""
     result["地址"] = addr
-    result["组"] = ""
-    result["组号"] = ""
+    # result["组"] = ""
+    # result["组号"] = ""
     
     # 去除剩余地址中以省市区开头的部分
     for x in range(1,10):

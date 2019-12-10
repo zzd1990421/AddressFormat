@@ -17,7 +17,9 @@ def GetRoadNumByRegex(addr):
 def GetZuAndNum(addr):
 	m = zu_num_pattern.search(addr)
 	if m:
-		return m.group(1),m.group(2)
+		num = m.group(1)[:-1]
+		value = cn2an.an2cn(num)
+		return str(value)+"组",m.group(2)
 
 	return getZuAndNumLast(addr)
 
@@ -34,20 +36,20 @@ def getZuAndNumLast(addr):
 		else:
 			break
 
-	if zu!="" and zu_num!="":
-		zu_str = zu[:len(zu)-1]
-		try:
-			value = cn2an.cn2an(zu_str, "strict")
-			value = str(value)
-			if num_pattern.match(value):
-				return value+"组",zu_num
-		except ValueError:
-			print(zu_str)
-			print("get zu zu_num wrong 1:"+addr)
-			return "",""
-		except TypeError:
-			print(zu_str)
-			print("get zu zu_num wrong 2:"+addr)
-			return "",""
+	# if zu!="" and zu_num!="":
+	# 	zu_str = zu[:len(zu)-1]
+	# 	try:
+	# 		value = cn2an.cn2an(zu_str, "strict")
+	# 		value = str(value)
+	# 		if num_pattern.match(value):
+	# 			return value+"组",zu_num
+	# 	except ValueError:
+	# 		print(zu_str)
+	# 		print("get zu zu_num wrong 1:"+addr)
+	# 		return "",""
+	# 	except TypeError:
+	# 		print(zu_str)
+	# 		print("get zu zu_num wrong 2:"+addr)
+	# 		return "",""
 
 	return "",""
